@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Test</title>
+  </head>
+  <body>
+    <p id="metamask_present">Metamask present?</p>
+
+    <button id="connect_to_metamask">Connect to Metamask</button>
+
+    <button onclick="giveMe()">Give Me The Money</button>
+
+    <script type="module">
+      import { ethers } from "https://cdn-cors.ethers.io/lib/ethers-5.5.4.esm.min.js";
+
+      let provider;
+      let contract;
+
+      const fillContract = () => {
+        const contractAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+        const abi = [
+          {
+            inputs: [
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+            ],
+            name: "giveMeTheMoney",
+            outputs: [],
+            stateMutability: "nonpayable",
+            type: "function",
+          },
+        ];
+
+        const signer = provider.getSigner();
+        contract = new ethers.Contract(contractAddress, abi, signer);
+      };
+
+      window.giveMe = async function () {
+        console.log("doing!");
+        const result = await contract.giveMeTheMoney(10000);
+        console.log("good!");
+      };
+
+      if (typeof window.ethereum !== "undefined") {
+        document.getElementById("metamask_present").innerText =
+          "Metamask present!";
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        fillContract();
+      }
+
+      document
+        .getElementById("connect_to_metamask")
+        .addEventListener("click", async () => {
+          console.log("requesting");
+          const result = await provider.send("eth_requestAccounts", []);
+          console.log(result);
+        });
+    </script>
+  </body>
+</html>
